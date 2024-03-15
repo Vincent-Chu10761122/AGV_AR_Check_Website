@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Input Form</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      input[type="text"] {
+        width: calc(100% - 16px);
+        padding: 8px;
+        box-sizing: border-box;
+      }
+      input[type="submit"] {
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      input[type="submit"]:hover {
+        background-color: #45a049;
+      }
+      .delete-btn {
+        background-color: #f44336;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+      .delete-btn:hover {
+        background-color: #cc0000;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>問題列表</h2>
+    <form id="inputForm">
+      <table id="dataTable">
+        <tr>
+          <th>區域</th>
+          <th>問題分類</th>
+          <th>問題描述</th>
+          <th>解決方法</th>
+          <th>日期時間</th>
+          <th>操作</th>
+        </tr>
+        <tr>
+          <td><input type="text" name="col1" placeholder="Enter value" /></td>
+          <td><input type="text" name="col2" placeholder="Enter value" /></td>
+          <td><input type="text" name="col3" placeholder="Enter value" /></td>
+          <td><input type="text" name="region" placeholder="Enter value" /></td>
+          <td></td>
+          <td>
+            <button class="delete-btn" type="button" onclick="deleteRow(this)">
+              Delete
+            </button>
+          </td>
+        </tr>
+      </table>
+      <br />
+      <input type="submit" value="Submit" />
+    </form>
+
+    <script>
+      window.onload = function () {
+        loadSavedData();
+      };
+
+      document
+        .getElementById("inputForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault(); // 防止表單默認提交
+
+          var col1Value = document.getElementsByName("col1")[0].value;
+          var col2Value = document.getElementsByName("col2")[0].value;
+          var col3Value = document.getElementsByName("col3")[0].value;
+          var regionValue = document.getElementsByName("region")[0].value;
+          var dateTime = new Date(); // 獲取當前日期和時間
+
+          var table = document.getElementById("dataTable");
+          var newRow = table.insertRow(-1); // 插入到表格底部
+          var cells = [];
+
+          for (var i = 0; i < 4; i++) {
+            cells[i] = newRow.insertCell(i);
+            var input = document.createElement("input");
+            input.type = "text";
+            input.value =
+              i === 0
+                ? col1Value
+                : i === 1
+                ? col2Value
+                : i === 2
+                ? col3Value
+                : regionValue;
+            input.readOnly = true;
+            cells[i].appendChild(input);
+          }
+
+          // 新增列以顯示當前日期和時間
+          cells[4] = newRow.insertCell(4);
+          var dateTimeText = document.createTextNode(dateTime.toLocaleString());
+          cells[4].appendChild(dateTimeText);
+
+          cells[5] = newRow.insertCell(5);
+          var deleteButton = document.createElement("button");
+          deleteButton.className = "delete-btn";
+          deleteButton.type = "button";
+          deleteButton.textContent = "Delete";
+          deleteButton.onclick = function () {
+            deleteRow(this);
+          };
+          cells[5].appendChild(deleteButton);
+
+          saveFormData(col1Value, col2Value, col3Value, regionValue);
+          clearFormFields();
+        });
+
+      function clearFormFields() {
+        document.getElementsByName("col1")[0].value = "";
+        document.getElementsByName("col2")[0].value = "";
+        document.getElementsByName("col3")[0].value = "";
+        document.getElementsByName("region")[0].value = "";
+      }
+
+      function saveFormData(col1, col2, col3, region) {
+        var savedData = localStorage.getItem("savedData");
+        var dataArr = savedData ? JSON.parse(savedData) : [];
+        dataArr.push({ col1: col1, col2: col2, col3: col3, region: region });
+        localStorage.setItem("savedData", JSON.stringify(dataArr));
+      }
+
+      function loadSavedData() {
+        var savedData = localStorage.getItem("savedData");
+        if (savedData) {
+          var dataArr = JSON.parse(savedData);
+          var table = document.getElementById("dataTable");
+          dataArr.forEach(function (data) {
+            var newRow = table.insertRow(-1);
+            var cells = [];
+
+            for (var i = 0; i < 4; i++) {
+              cells[i] = newRow.insertCell(i);
+              var input = document.createElement("input");
+              input.type = "text";
+              input.value =
+                i === 0
+                  ? data.col1
+                  : i === 1
+                  ? data.col2
+                  : i === 2
+                  ? data.col3
+                  : data.region;
+              input.readOnly = true;
+              cells[i].appendChild(input);
+            }
+
+            var dateTime = new Date(); // 獲取當前日期和時間
+            cells[4] = newRow.insertCell(4);
+            var dateTimeText = document.createTextNode(
+              dateTime.toLocaleString()
+            );
+            cells[4].appendChild(dateTimeText);
+
+            cells[5] = newRow.insertCell(5);
+            var deleteButton = document.createElement("button");
+            deleteButton.className = "delete-btn";
+            deleteButton.type = "button";
+            deleteButton.textContent = "Delete";
+            deleteButton.onclick = function () {
+              deleteRow(this);
+            };
+            cells[5].appendChild(deleteButton);
+          });
+        }
+      }
+
+      function deleteRow(row) {
+        var rowIndex = row.parentNode.parentNode.rowIndex;
+        document.getElementById("dataTable").deleteRow(rowIndex);
+        updateSavedData();
+      }
+
+      function updateSavedData() {
+        var dataArr = [];
+        var table = document.getElementById("dataTable");
+        for (var i = 1; i < table.rows.length; i++) {
+          var row = table.rows[i];
+          var col1 = row.cells[0].firstChild.value;
+          var col2 = row.cells[1].firstChild.value;
+          var col3 = row.cells[2].firstChild.value;
+          var region = row.cells[3].firstChild.value;
+          if (
+            col1.trim() !== "" ||
+            col2.trim() !== "" ||
+            col3.trim() !== "" ||
+            region.trim() !== ""
+          ) {
+            dataArr.push({
+              col1: col1,
+              col2: col2,
+              col3: col3,
+              region: region,
+            });
+          }
+        }
+        localStorage.setItem("savedData", JSON.stringify(dataArr));
+      }
+    </script>
+  </body>
+</html>
