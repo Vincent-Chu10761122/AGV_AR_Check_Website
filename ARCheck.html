@@ -192,8 +192,24 @@
         }
       }
 
-      function deleteRow(row) {
-        var rowIndex = row.parentNode.parentNode.rowIndex;
+      function deleteRow(deleteButton) {
+        var rowIndex = deleteButton.parentNode.parentNode.rowIndex;
+        var deletedRow = document.getElementById("dataTable").rows[rowIndex];
+
+        // Check if the row exists and contains input elements
+        if (deletedRow && deletedRow.cells && deletedRow.cells.length > 0) {
+          var rowData = [];
+          for (var i = 0; i < deletedRow.cells.length; i++) {
+            var inputElement = deletedRow.cells[i].querySelector("input");
+            if (inputElement) {
+              rowData.push(inputElement.value);
+            }
+          }
+
+          // Send data to CloseCheck.html
+          localStorage.setItem("deletedRowData", JSON.stringify(rowData));
+        }
+
         document.getElementById("dataTable").deleteRow(rowIndex);
         updateSavedData();
       }

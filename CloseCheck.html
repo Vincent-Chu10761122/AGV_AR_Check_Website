@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Closed Check</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Closed Items</h2>
+    <div id="closedItems"></div>
+
+    <script>
+      window.onload = function () {
+        displayClosedItems();
+      };
+
+      function displayClosedItems() {
+        var deletedRowData = localStorage.getItem("deletedRowData");
+        if (deletedRowData) {
+          var rowData = JSON.parse(deletedRowData);
+          var closedItemsDiv = document.getElementById("closedItems");
+          var table = document.createElement("table");
+          table.border = "1";
+          var headerRow = table.insertRow();
+          var headers = [
+            "區域",
+            "問題分類",
+            "問題描述",
+            "解決方法",
+            "日期時間",
+          ];
+          headers.forEach(function (header) {
+            var th = document.createElement("th");
+            th.textContent = header;
+            headerRow.appendChild(th);
+          });
+
+          var dataRow = table.insertRow();
+          rowData.forEach(function (item) {
+            var td = document.createElement("td");
+            td.textContent = item;
+            dataRow.appendChild(td);
+          });
+
+          closedItemsDiv.appendChild(table);
+        }
+      }
+    </script>
+  </body>
+</html>
